@@ -7,6 +7,7 @@
  * whether OpenCode is usable: the studio never reads OpenCode's credentials.
  */
 import { CatalogError } from "./model-catalog.ts";
+import { isLocalIp } from "../local-server/address.ts";
 import { MCP_SERVER_NAME } from "./studio-mcp-shim.ts";
 import { MINUTE_MS, SECOND_MS } from "../../shared/duration.ts";
 import type { EngineModel } from "./types.ts";
@@ -159,12 +160,16 @@ function priceNote(provider: string, input: number, output: number): string {
   return MESSAGE.Price(provider, `$${input.toFixed(2)}`, `$${output.toFixed(2)}`);
 }
 
-/** The host of a provider's API URL, or null for a missing or non-HTTPS one. */
+/**
+ * The host of a provider's API URL, or null for a missing one or one that is neither HTTPS nor a
+ * plain-HTTP server on this computer or the local network (a model server the person runs).
+ */
 function apiHost(value: unknown): string | null {
   if (typeof value !== "string") return null;
   try {
     const url = new URL(value);
-    return url.protocol === "https:" ? url.hostname : null;
+    if (url.protocol === "https:") return url.hostname;
+    return url.protocol === "http:" && isLocalIp(url.hostname.replace(/^\[|\]$/g, "")) ? url.hostname : null;
   } catch {
     return null;
   }
