@@ -2,7 +2,8 @@
 # Move the fork onto a newer official Genex release: replay the fork's commits on top of the new tag.
 #
 # Usage: fork/scripts/sync-upstream.sh [vX.Y.Z]   (default: the newest upstream release tag)
-# Then: fix any conflicts (git rebase --continue), run fork/scripts/check.sh, then fork/scripts/install.sh.
+# Then: fix any conflicts (git rebase --continue), run fork/scripts/check.sh, fork/scripts/install.sh, and
+# git push --force-with-lease origin main. Local tags fork-before-<tag> are never pushed.
 set -euo pipefail
 
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
@@ -22,4 +23,4 @@ echo "== rebase $BRANCH: $OLD -> $NEW ($(git rev-list --count "$OLD"..HEAD) fork
 git rebase --onto "$NEW" "$OLD" "$BRANCH"
 echo "$NEW" > fork/BASE
 git commit --quiet -m "fork: base $NEW" fork/BASE
-echo "== on $NEW. Next: fork/scripts/check.sh, then fork/scripts/install.sh --restart"
+echo "== on $NEW. Next: fork/scripts/check.sh, fork/scripts/install.sh --restart, then git push --force-with-lease origin main"

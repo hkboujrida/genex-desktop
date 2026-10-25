@@ -8,9 +8,21 @@ the patches themselves are ordinary commits on `main`, listed in [PATCHES.md](PA
 |---|---|
 | Base release | the tag in [`BASE`](BASE) |
 | Branch | `main` = base tag + fork commits (rebased, never merged, so each patch stays one readable commit) |
-| Remotes | `upstream` = genex-games/genex-desktop; `origin` = your own fork, once you create one |
+| Remotes | `origin` = [hkboujrida/genex-desktop](https://github.com/hkboujrida/genex-desktop) (this fork, public); `upstream` = genex-games/genex-desktop |
+| GitHub Actions | **off** on the fork: upstream's workflows would tag and publish releases from it. Leave them off. |
 | Installed at | `~/.local/lib/genex` (launcher `~/.local/bin/genex`); app data stays in `~/.config/Genex` |
 | Platform | Linux x64 only (the install script uses the official Linux zip) |
+
+## On a new machine
+
+```sh
+git clone git@github.com:hkboujrida/genex-desktop.git ~/Workspace/genex-desktop
+cd ~/Workspace/genex-desktop
+git remote add upstream https://github.com/genex-games/genex-desktop.git && git fetch upstream --tags
+fork/scripts/install.sh --restart
+```
+
+The scripts need upstream's tags (`fork/BASE`, `sync-upstream.sh`), which the fork does not carry.
 
 ## Daily use
 
@@ -42,6 +54,7 @@ The installed build says what it is in `dist/FORK.json` inside `app.asar`
 2. Add it to [PATCHES.md](PATCHES.md): what, why, files, and the test that covers it.
 3. Add its test file to `fork/scripts/check.sh` if it is not already covered.
 4. `fork/scripts/check.sh && fork/scripts/install.sh --restart`.
+5. `git push` to the fork.
 
 Keep patches small and in the upstream style (read `AGENTS.md` — comments explain *why*, the
 `check:static` rules apply). A patch that would help everyone is worth offering upstream as a PR;
@@ -53,6 +66,7 @@ once upstream has it, drop the fork commit at the next sync.
 fork/scripts/sync-upstream.sh          # newest release tag; or name one: sync-upstream.sh v0.1.24
 fork/scripts/check.sh
 fork/scripts/install.sh --restart
+git push --force-with-lease origin main   # a rebase rewrites the fork's commits
 ```
 
 `sync-upstream.sh` tags the current fork as `fork-before-<tag>`, rebases the fork's commits from the old
