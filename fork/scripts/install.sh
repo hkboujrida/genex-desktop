@@ -49,8 +49,8 @@ STOCK=$CACHE/stock-$VER
 if [ ! -d "$STOCK/Genex-linux-x64" ]; then
   echo "== download official $ZIP"
   mkdir -p "$CACHE"
-  curl -fL --retry 3 -o "$CACHE/$ZIP" "$RELEASES/$TAG/$ZIP"
-  curl -fL --retry 3 -o "$CACHE/SHA256SUMS-$VER" "$RELEASES/$TAG/SHA256SUMS"
+  curl -fsSL --retry 3 -o "$CACHE/$ZIP" "$RELEASES/$TAG/$ZIP"
+  curl -fsSL --retry 3 -o "$CACHE/SHA256SUMS-$VER" "$RELEASES/$TAG/SHA256SUMS"
   (cd "$CACHE" && grep " $ZIP\$" "SHA256SUMS-$VER" | sha256sum -c -)
   rm -rf "$STOCK" && mkdir -p "$STOCK"
   unzip -q "$CACHE/$ZIP" -d "$STOCK"
