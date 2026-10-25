@@ -76,7 +76,14 @@ export function resolveContextWindow(
   const descriptor = described.find((e) => e.id === engine);
   if (!descriptor) return null;
   const id = model ?? descriptor.defaultModel;
-  return descriptor.models?.find((m) => m.id === id)?.contextWindow ?? null;
+  const win = descriptor.models?.find((m) => m.id === id)?.contextWindow ?? null;
+  // A local server the host can't probe for metadata (e.g. tensorfold's OpenAI endpoint) is recorded
+  // at the 32768 default even when the model's real window is far larger (Qwen3.8-Flash-Next = 262144).
+  // Honor the true window so a role's fixed instructions + tools fit. Override with HARNESS_LOCAL_CONTEXT.
+  if (descriptor.server && win !== null && win <= 32768) {
+    return Number(process.env.HARNESS_LOCAL_CONTEXT) || 262144;
+  }
+  return win;
 }
 
 type Prompt = Awaited<ReturnType<typeof materializePrompt>>;
